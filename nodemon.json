@@ -1,0 +1,12 @@
+{
+    "env": {
+        "DB_USER" : "root" ,
+        "DB_PASSWORD" : "root" ,
+        "DB_DATABASE" : "sgemp" ,
+        "DB_HOST" : "localhost" ,
+        "DB_PORT" : 3306,
+        "DB_DIALECT": "mariadb",
+        "JWT_SECRET": "FORTHEHORDE",
+        "JWT_REFRESH_SECRET": "FORTHEHORDEREFRESH"
+    }
+}

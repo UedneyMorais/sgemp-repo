@@ -2,9 +2,17 @@
   "name": "sgemp-repo",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+"scripts": {
+  "start:api": "APP_TYPE=api NODE_ENV=sgemp-api node packages/sgemp-api/dist/index.js",
+  "start:pdv": "APP_TYPE=pdv NODE_ENV=sgemp-pdv-api node packages/sgemp-pdv-api/dist/index.js",
+  "copy:api": "API_TYPE=sgemp-api node copy-files.js",
+  "copy:pdv": "API_TYPE=sgemp-pdv-api node copy-files.js",
+  "copy": "echo 'Use copy:api or copy:pdv to copy files for a specific API.'",
+  "build:api": "API_TYPE=sgemp-api npm run build --workspace=sgemp-api",
+  "build:pdv": "API_TYPE=sgemp-pdv-api npm run build --workspace=sgemp-pdv-api",
+  "build": "echo 'Building both APIs. Use build:api or build:pdv for specific builds.'"
+},
+
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -15,5 +23,4 @@
     "packages/sgemp-pdv-api",
     "packages/shared"
   ]
-
 }
