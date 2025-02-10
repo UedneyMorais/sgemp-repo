@@ -1,13 +1,13 @@
-require('dotenv').config();
-const amqp = require('amqplib')
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+const amqp = require('amqplib');
 
-const RABBITMQ_URL =process.env.RABBITMQ_URL || 'amqp://localhost';
+const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://localhost';
 
 let connection;
 let channel;
 
 async function connect() {
-
     try {
         connection = await amqp.connect(RABBITMQ_URL);
         channel = await connection.createChannel();
@@ -16,46 +16,68 @@ async function connect() {
         console.error('Erro ao conectar ao RabbitMQ:', error);
         throw error;
     }
-    
 }
 
 async function createQueue(queueName) {
-
-    if(!channel){
-        await connect();
+    try {
+        if (!channel) {
+            await connect();
+        }
+        await channel.assertQueue(queueName, { durable: true });
+    } catch (error) {
+        console.error(`Erro ao criar/verificar fila ${queueName}:`, error);
+        throw error;
     }
-
-    await channel.assertQueue(queueName, { durable: true });
-    console.log(`Fila ${queueName} criada/verificada `);
 }
 
 async function sendToQueue(queueName, message) {
-
-    if(!channel){
-        await connect();
+    try {
+        if (!channel) {
+            await connect();
+        }
+        await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)), { persistent: true });
+    } catch (error) {
+        throw error;
     }
-
-    await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)), { persistent: true });
-    console.log(`Mensagem enviada para a fila ${queueName}:`, message);
-    
 }
 
 async function consumeQueue(queueName, callback) {
-
-    if(!channel){
-        await connect();
-    }
-
-    await channel.consume(queueName, (message) => {
-
-        if(message !==null){
-            const content = JSON.parse(message.content.toString());
-            callback(content);
-            channel.ack(message);
+    try {
+        if (!channel) {
+            await connect();
         }
-        console.log(`Consumindo mensagens da fila ${queueName}`);
-    });
-    
+
+        await channel.assertQueue(queueName, { durable: true });
+
+        channel.prefetch(1); 
+
+        await channel.consume(queueName, (message) => {
+            if (message !== null) {
+                const content = JSON.parse(message.content.toString());
+
+                if (message.fields.redelivered) {
+                    console.log(`Mensagem redelivered ${message.fields.deliveryTag}. Ignorando ou processando de forma diferente...`);
+                    channel.ack(message); 
+                    return; 
+                }
+
+                try {
+                    callback(content);
+                    channel.ack(message);
+                } catch (error) {
+                    console.error('Erro ao consumir mensagens do RabbitMQ:', error);
+                    //channel.nack(message, false, true); 
+                }
+            }
+ 
+        }, { noAck: false });
+
+
+
+    } catch (error) {
+        console.error(`Erro ao configurar consumidor para a fila ${queueName}:`, error);
+        throw error;
+    }
 }
 
 module.exports = {
@@ -63,7 +85,4 @@ module.exports = {
     createQueue,
     sendToQueue,
     consumeQueue,
-  };
-
-
- 
+};

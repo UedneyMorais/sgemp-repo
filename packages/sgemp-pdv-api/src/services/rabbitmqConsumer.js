@@ -27,4 +27,4 @@ function generateReport(sale) {
 // Inicia o consumo das mensagens
 startConsume();
 
-module.exports = {startConsume}
+module.exports = { startConsume }

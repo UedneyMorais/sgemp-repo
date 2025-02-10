@@ -1,93 +1,127 @@
-{
+// {
 
+//   "version": "0.2.0",
+  
+//   "configurations": [
+  
+//   {
+  
+//   "type": "node",
+  
+//   "request": "launch",
+  
+//   "name": "Debug API",
+  
+//   "skipFiles": ["<node_internals>/**"],
+  
+//   "program": "${workspaceFolder}/packages/sgemp-api/dist/index.js",
+  
+//   "env": {
+  
+//   "APP_TYPE": "api",
+  
+//   "NODE_ENV": "sgemp-api"
+  
+//   },
+  
+//   "outFiles": ["${workspaceFolder}/packages/sgemp-api/dist/**/*.js"]
+  
+//   },
+  
+//   {
+  
+//   "type": "node",
+  
+//   "request": "launch",
+  
+//   "name": "Debug PDV",
+  
+//   "skipFiles": ["<node_internals>/**"],
+  
+//   "program": "${workspaceFolder}/packages/sgemp-pdv-api/dist/index.js",
+  
+//   "env": {
+  
+//   "APP_TYPE": "pdv",
+  
+//   "NODE_ENV": "sgemp-pdv-api"
+  
+//   },
+  
+//   "outFiles": ["${workspaceFolder}/packages/sgemp-pdv-api/dist/**/*.js"]
+  
+//   },
+  
+//   {
+  
+//   "type": "node",
+  
+//   "request": "launch",
+  
+//   "name": "Run API",
+  
+//   "skipFiles": ["<node_internals>/**"],
+  
+//   "runtimeExecutable": "npm",
+  
+//   "runtimeArgs": ["run", "start:api"],
+  
+//   "console": "integratedTerminal"
+  
+//   },
+  
+//   {
+  
+//   "type": "node",
+  
+//   "request": "launch",
+  
+//   "name": "Run PDV",
+  
+//   "skipFiles": ["<node_internals>/**"],
+  
+//   "runtimeExecutable": "npm",
+  
+//   "runtimeArgs": ["run", "start:pdv"],
+  
+//   "console": "integratedTerminal"
+  
+//   }
+  
+//   ]
+  
+//   }
+
+{
   "version": "0.2.0",
-  
   "configurations": [
-  
-  {
-  
-  "type": "node",
-  
-  "request": "launch",
-  
-  "name": "Debug API",
-  
-  "skipFiles": ["<node_internals>/**"],
-  
-  "program": "${workspaceFolder}/packages/sgemp-api/dist/index.js",
-  
-  "env": {
-  
-  "APP_TYPE": "api",
-  
-  "NODE_ENV": "sgemp-api"
-  
-  },
-  
-  "outFiles": ["${workspaceFolder}/packages/sgemp-api/dist/**/*.js"]
-  
-  },
-  
-  {
-  
-  "type": "node",
-  
-  "request": "launch",
-  
-  "name": "Debug PDV",
-  
-  "skipFiles": ["<node_internals>/**"],
-  
-  "program": "${workspaceFolder}/packages/sgemp-pdv-api/dist/index.js",
-  
-  "env": {
-  
-  "APP_TYPE": "pdv",
-  
-  "NODE_ENV": "sgemp-pdv-api"
-  
-  },
-  
-  "outFiles": ["${workspaceFolder}/packages/sgemp-pdv-api/dist/**/*.js"]
-  
-  },
-  
-  {
-  
-  "type": "node",
-  
-  "request": "launch",
-  
-  "name": "Run API",
-  
-  "skipFiles": ["<node_internals>/**"],
-  
-  "runtimeExecutable": "npm",
-  
-  "runtimeArgs": ["run", "start:api"],
-  
-  "console": "integratedTerminal"
-  
-  },
-  
-  {
-  
-  "type": "node",
-  
-  "request": "launch",
-  
-  "name": "Run PDV",
-  
-  "skipFiles": ["<node_internals>/**"],
-  
-  "runtimeExecutable": "npm",
-  
-  "runtimeArgs": ["run", "start:pdv"],
-  
-  "console": "integratedTerminal"
-  
-  }
-  
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug API",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/packages/sgemp-api/src/index.js",
+      "env": {
+        "APP_TYPE": "api",
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true // Habilita source maps (se necessário)
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug PDV",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/packages/sgemp-pdv-api/src/index.js",
+      "env": {
+        "APP_TYPE": "pdv",
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true // Habilita source maps (se necessário)
+    }
   ]
-  
-  }
+}

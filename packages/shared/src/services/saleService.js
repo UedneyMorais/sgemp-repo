@@ -179,14 +179,15 @@ async createSale(req) {
 
       //Publicar no rabbitMQ
       const messageToRabbitMQ = {
-        saleId: sale.id,
+        customerId: customerId,
+        items: items,
+        saleNumber: '10',
         paymentData: paymentData,
-        items: items
+        
         };
 
-        await sendToQueue('vendas_finalizadas', messageToRabbitMQ);
-        console.log('Venda finalizada e mensagem publicada no RabbitMQ');
-
+        await sendToQueue('finalized_sale', messageToRabbitMQ);
+       
       return  formattedSales;
 
   } catch (error) {
