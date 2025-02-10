@@ -4,8 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    
-    "build": "babel src -d dist --root-mode upward --copy-files && API_TYPE=sgemp-pdv-api node ../../../copy-files.js && javascript-obfuscator dist --output dist --control-flow-flattening --dead-code-injection --debug-protection --disable-console-output --string-array --string-array-encoding base64 --string-array-index-shift --split-strings --split-strings-chunk-length 5 --transform-object-keys true --exclude dist/routes/**/*.js" 
+    "build": "babel src -d dist --root-mode upward && API_TYPE=sgemp-pdv-api node ../../copy-files.js && javascript-obfuscator dist --output dist --control-flow-flattening --dead-code-injection --debug-protection --disable-console-output --string-array --string-array-encoding base64 --string-array-index-shift --split-strings --split-strings-chunk-length 5 --transform-object-keys true --exclude dist/routes/**/*.js --exclude dist/config/**/*.js"
   },
   "dependencies": {
     "shared": "1.0.0" 

@@ -1,11 +1,10 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const fs = require('fs');
 const https = require('https');
-const http = require('http');
-const path = require('path');
 const app = require('./app');
 
-const port = process.env.PORT || 3001;
+const port = process.env.SERVER_PORT || 3001;
 const isProduction = process.env.NODE_ENV === 'production'; 
 
 // Configuração do HTTPS
@@ -30,10 +29,15 @@ const { startTokenCleaner} = require('./jobs/tokenCleaner');
 
 startTokenCleaner();
 
-server.listen(port, () => {
-    console.log(`Server is running on https://localhost:${port}`);
-    console.log(`Process ID (PID): ${process.pid}`); // Exibe o número do processo
-});
+// Exporta o servidor para ser iniciado nos pacotes específicos
+module.exports = {
+  start: () => {
+    server.listen(port, () => {
+      console.log(`Server is running on https://localhost:${port}`);
+      console.log(`Process ID (PID): ${process.pid}`);
+    });
+  },
+};
 
 //netstat -ano | findstr :3000
 //lsof -i :3000
