@@ -5,6 +5,7 @@ const Product = require('../models/Product');
 const SaleItem = require('../models/SaleItem');
 const stockService = require('../services/stockMovementService');
 const Payment = require('../models/Payment');
+const { sendToQueue } = require('../config/rabbitmq');
 
 
 class SaleService {
@@ -175,6 +176,16 @@ async createSale(req) {
       await transaction.commit(); 
 
       const formattedSales = this.formattedSales({ sale, totalValue, paymentsArray, saleItemsData});
+
+      //Publicar no rabbitMQ
+      const messageToRabbitMQ = {
+        saleId: sale.id,
+        paymentData: paymentData,
+        items: items
+        };
+
+        await sendToQueue('vendas_finalizadas', messageToRabbitMQ);
+        console.log('Venda finalizada e mensagem publicada no RabbitMQ');
 
       return  formattedSales;
 

@@ -7,6 +7,7 @@
         "DB_PORT" : 3306,
         "DB_DIALECT": "mariadb",
         "JWT_SECRET": "FORTHEHORDE",
-        "JWT_REFRESH_SECRET": "FORTHEHORDEREFRESH"
+        "JWT_REFRESH_SECRET": "FORTHEHORDEREFRESH",
+        "RABBITMQ_URL":"amqp://localhost"
     }
 }
