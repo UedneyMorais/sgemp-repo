@@ -3,7 +3,7 @@ const userRepository = require('../repositories/userRepository');
 
 class UserService {
 
-  async getUsers({ page, perPage, id, name, email, profile, active }) {
+  async getUsers({ page, perPage, id, name, email, profile }) {
     const offset = (page - 1) * perPage;
 
     const where = {};
@@ -11,7 +11,7 @@ class UserService {
     if (name) where.name = { [Op.like]: `%${name}%` };
     if (email) where.email = { [Op.like]: `%${email}%` };
     if (profile) where.profile = profile;
-    if (active !== undefined) where.active = active === 'true';
+    //if (active !== undefined) where.active = active === true;
 
     const { rows: users, count } = await userRepository.findAndCountAll({
       where,

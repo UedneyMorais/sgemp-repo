@@ -1,4 +1,3 @@
-const { Op } = require('sequelize');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 
