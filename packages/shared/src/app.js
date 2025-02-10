@@ -43,7 +43,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Configuração de CORS completa
 const corsOptions = {
-    origin: ['https://localhost:8081', 'https://192.168.77.137:8081', 'http://localhost:8081', 'http://192.168.77.137:8081'], 
+    origin: [
+        'https://localhost:8081', 
+        'https://192.168.77.137:8081',
+        'http://localhost:8081', 
+        'http://192.168.77.137:8081',
+        'https://localhost:8080', 
+        'https://192.168.77.137:8080',
+        'http://localhost:8080', 
+        'http://192.168.77.137:8080',    
+    
+    ], 
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
         'Origin', 
