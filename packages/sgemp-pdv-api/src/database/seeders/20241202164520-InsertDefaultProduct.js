@@ -1,0 +1,85 @@
+'use strict';
+
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    return queryInterface.bulkInsert('products', [
+      {
+        description: "Café Expresso",
+        price: 4.99,
+        cfop: "5102",
+        ean: "7891234567890",
+        dtvenc: "2025-12-31",
+        description: "Café Expresso Torrado",
+        unit_type: "UN",
+        cst_csosn: "0102",
+        cst_pis: "01",
+        cst_cofins: "01",
+        cst_ipi: "00",
+        per_icms: 18,
+        per_pis: 1.65,
+        per_cofins: 7.6,
+        per_ipi: 10,
+        category_id: 1,
+        active: true,
+      },
+      {
+        description: "Chá Verde Natural",
+        price: 6.99,
+        cfop: "5102",
+        ean: "7899876543210",
+        dtvenc: "2026-06-30",
+        unit_type: "UN",
+        cst_csosn: "0102",
+        cst_pis: "01",
+        cst_cofins: "01",
+        cst_ipi: "00",
+        per_icms: 18,
+        per_pis: 1.65,
+        per_cofins: 7.6,
+        per_ipi: 10,
+        category_id: 1,
+        active: true,
+      },
+      {
+        description: "Desodorante rexona invisible",
+        price: 18.32,
+        cfop: "5102",
+        ean: "7791293022635",
+        dtvenc: "2025-12-31",
+        unit_type: "KG",
+        cst_csosn: "0102",
+        cst_pis: "01",
+        cst_cofins: "01",
+        cst_ipi: "00",
+        per_icms: 18,
+        per_pis: 1.65,
+        per_cofins: 7.6,
+        per_ipi: 10,
+        category_id: 1,
+        active: true,
+      },
+      {
+        description: "Café com Leite Integral",
+        price: 5.99,
+        cfop: "5102",
+        ean: "7893210987654",
+        dtvenc: "2026-03-31",
+        unit_type: "UN",
+        cst_csosn: "0102",
+        cst_pis: "01",
+        cst_cofins: "01",
+        cst_ipi: "00",
+        per_icms: 18,
+        per_pis: 1.65,
+        per_cofins: 7.6,
+        per_ipi: 10,
+        category_id: 1,
+        active: true,
+      }
+    ]);
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    return queryInterface.sequelize.query(`DELETE FROM products;`);
+  }
+};

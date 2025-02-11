@@ -46,6 +46,7 @@
     "javascript-obfuscator": "^4.1.1",
     "ncp": "^2.0.0",
     "nodemon": "^3.1.7",
-    "sequelize-cli": "^6.6.2"
+    "sequelize-cli": "^6.6.2",
+    "umzug": "^3.8.2"
   }
 }

@@ -1,12 +1,13 @@
 // packages/sgemp-api/src/rabbitmqConsumer.js
 const { consumeQueue } = require('shared/src/config/rabbitmq');
+const saleService = require('./saleService');
 
 async function startConsume() {
   try {
     await consumeQueue('finalized_sale', (message) => {
       console.log('Nova venda finalizada recebida:', message);
 
-      updateStock(message.itens);
+      createSale(message);
       generateReport(message);
     });
   } catch (error) {
@@ -14,9 +15,20 @@ async function startConsume() {
   }
 }
 
-function updateStock(itens) {
-  // Lógica para atualizar o estoque...
-  console.log('Estoque atualizado para os itens:', itens);
+function createSale(message) {
+  console.log("Entrando no createSale apartir do rabbitMQ")
+  const { customerId, items, paymentData, saleNumber } = message;
+
+    const req = {
+      body: {
+        customerId,
+        items,
+        payments: paymentData,
+        saleNumber,
+      },
+    };
+
+  saleService.createSale(req);
 }
 
 function generateReport(sale) {
