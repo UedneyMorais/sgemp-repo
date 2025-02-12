@@ -21,5 +21,9 @@
     "packages/sgemp-api",
     "packages/sgemp-pdv-api",
     "packages/shared"
-  ]
+  ],
+  "dependencies": {
+    "sequelize-cli": "^6.6.2",
+    "umzug": "^3.8.2"
+  }
 }

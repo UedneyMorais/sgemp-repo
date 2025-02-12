@@ -8,7 +8,9 @@ module.exports = {
         email: 'admin@gmail.com',
         password: '$2a$12$wUkVZN/DtvAle3OzidAMV.SG3fOl3zn2POB8QMP5j3khKOGGq8ETi',
         profile: 'admin',
-        active: true
+        active: true,
+        created_at: new Date(), 
+        updated_at: new Date()  
       }
     ]);
   },

@@ -17,5 +17,5 @@ module.exports = {
   production: { // Configuração para produção
     // ...
   },
-  migrationStorageTableName: 'sequelize_meta' // Esta linha pode ficar aqui ou no .sequelizerc
+  migrationStorageTableName: 'sequelize_meta'
 };

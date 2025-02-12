@@ -6,7 +6,7 @@ const SaleItem = require('../models/SaleItem');
 const stockService = require('../services/stockMovementService');
 const Payment = require('../models/Payment');
 const { sendToQueue } = require('../config/rabbitmq');
-
+const rabbitmq = require('shared/src/config/rabbitmq');
 
 class SaleService {
 
@@ -185,6 +185,12 @@ async createSale(req) {
         paymentData: paymentData,
         
         };
+
+        (async () => {
+            await rabbitmq.connect();
+            await rabbitmq.createQueue('finalized_sale');
+            await rabbitmq.sendToQueue('finalized_sale', messageToRabbitMQ);
+        })();
 
         await sendToQueue('finalized_sale', messageToRabbitMQ);
        

@@ -7,16 +7,19 @@ const rabbitmq = require('shared/src/config/rabbitmq'); // Importe o seu arquivo
 
 async function startApp() {
     try {
-        await rabbitmq.createQueue('finalized_sale');
-
-        server.start();
-
-        startConsume();
-
+      await rabbitmq.createQueue('finalized_sale');
+      server.start();
+  
+      // Inicia o consumidor
+      startConsume();
+  
+      // Aguarda 2 segundos para garantir que o consumidor esteja pronto
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Consumidor RabbitMQ está pronto.');
     } catch (error) {
-        console.error("Erro ao iniciar a aplicação (RabbitMQ):", error);
-        process.exit(1); // Ou outra forma de lidar com o erro
+      console.error("Erro ao iniciar a aplicação (RabbitMQ):", error);
+      process.exit(1);
     }
-}
-
-startApp();
+  }
+  
+  startApp();

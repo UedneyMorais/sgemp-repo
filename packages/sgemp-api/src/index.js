@@ -7,8 +7,7 @@ const rabbitmq = require('shared/src/config/rabbitmq'); // Importe o seu arquivo
 
 async function startApp() {
     try {
-        await rabbitmq.createQueue('finalized_sale');
-
+        
         server.start();
 
         startConsume();
