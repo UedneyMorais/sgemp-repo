@@ -7,18 +7,6 @@ const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://localhost';
 let connection;
 let channel;
 
-// // Conecta ao RabbitMQ
-// async function connect() {
-//     try {
-//         connection = await amqp.connect(RABBITMQ_URL);
-//         channel = await connection.createChannel();
-//         console.log('Conectado ao RabbitMQ');
-//     } catch (error) {
-//         console.error('Erro ao conectar ao RabbitMQ:', error);
-//         throw error;
-//     }
-// }
-
 // Conecta ao RabbitMQ
 async function connect() {
     try {
@@ -87,40 +75,32 @@ async function consumeQueue(queueName, callback) {
         }
 
         await channel.assertQueue(queueName, { durable: true });
-        channel.prefetch(1); // Garante que cada consumidor processe apenas uma mensagem por vez
+        channel.prefetch(1);
 
-        console.log(`📥 Consumindo mensagens da fila: ${queueName}...`);
+
 
         await channel.consume(queueName, async (message) => {
             if (!message) {
-                console.error('❌ Recebeu mensagem nula.');
                 return;
             }
-
-            console.log(`🔍 Mensagem recebida - ID: ${message.fields.deliveryTag} | Redelivery: ${message.fields.redelivered}`);
 
             const content = JSON.parse(message.content.toString());
 
             try {
                 if (message.fields.redelivered) {
-                    console.log(`🔁 Mensagem já redelivered - ID: ${message.fields.deliveryTag}. Ignorando ou processando de forma diferente...`);
                     channel.ack(message); // Confirma para evitar loop
                     return;
                 }
 
-                console.log(`🟢 Processando mensagem ID: ${message.fields.deliveryTag}`);
-
                 await callback(content); // Processa a mensagem
 
                 if (channel) {
-                    channel.ack(message); // ✅ Envia ACK somente após sucesso
-                    console.log(`✅ Mensagem processada e confirmada (ACK enviado) - ID: ${message.fields.deliveryTag}`);
+                    channel.ack(message); 
                 } else {
                     console.error('⚠️ Canal fechado antes do ACK.');
                 }
             } catch (error) {
-                console.error(`❌ Erro ao processar mensagem (ID: ${message.fields.deliveryTag}):`, error);
-
+    
                 if (channel) {
                     console.warn(`🔄 Mensagem ${message.fields.deliveryTag} será reenviada para a fila.`);
                     channel.nack(message, false, true); // Reenvia a mensagem para a fila

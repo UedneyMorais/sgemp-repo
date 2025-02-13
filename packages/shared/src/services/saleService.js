@@ -102,7 +102,6 @@ class SaleService {
 
 async createSale(req) {
   const { customerId, items, payments } = req.body;
-  console.log('Iniciando criação da venda:', { customerId, items, payments });
 
   const itemsArray = JSON.parse(JSON.stringify(items));
 
@@ -117,8 +116,7 @@ async createSale(req) {
 
   try {
       const sale = await saleRepository.createSale(customerId, transaction);
-      console.log(`Venda criada com sucesso. Sale ID: ${sale.id}`);
-
+    
       const productIds = itemsArray.map(item => item.productId);
       const products = await Product.findAll({
           where: { id: productIds },
@@ -139,7 +137,6 @@ async createSale(req) {
           value: parseFloat((item.quantity * productPriceMap[item.productId]).toFixed(2))
       }));
 
-      console.log('Verificando estoque antes de registrar a venda...');
       for (const item of saleItemsData) {
           const currentStock = await stockService.getStockByProductId(item.productId);
          
@@ -178,7 +175,6 @@ async createSale(req) {
       await Payment.bulkCreate(paymentData, { transaction });
 
       await transaction.commit(); 
-      console.log(`Venda processada e registrada com sucesso (ID: ${sale.id}). Enviando para RabbitMQ...`);
 
       //Publicar no rabbitMQ
       const messageToRabbitMQ = {
@@ -190,6 +186,8 @@ async createSale(req) {
         };
 
         await sendToQueue('finalized_sale', messageToRabbitMQ);
+
+
     return this.formattedSales({ sale, totalValue, paymentsArray, saleItemsData});     
   } catch (error) {
       await transaction.rollback(); 
@@ -220,86 +218,6 @@ async formattedSales({ sale, totalValue, paymentsArray, saleItemsData  }){
       return formattedSales
 }
 
-
-
-  // async createSale(req) {
-  //   const { customerId, items } = req.body;
-
-  //   const itemsArray = JSON.parse(JSON.stringify(items));
-   
-  //   if (!customerId || !Array.isArray(itemsArray) || itemsArray.length === 0) {
-  //     throw new Error('O JSON da venda está incompleto ou os itens estão incorretos.');
-  //   }
-
-  //   const transaction = await sequelize.transaction();
-
-  //   try {
-  //     const sale = await saleRepository.createSale(customerId, transaction);
-
-  //     const productIds = itemsArray.map(item => item.productId);
-  
-  //     const products = await Product.findAll({
-  //       where: { id: productIds },
-  //       attributes: ['id', 'price'],
-  //       transaction
-  //     });
-  
-  //     const productPriceMap = {};
-  //     products.forEach(product => {
-  //         productPriceMap[product.id] = product.price;
-  //     });
-  
-  
-  //     let saleItemsData = itemsArray.map(item => ({
-  //       saleId: sale.id,
-  //       productId: item.productId,
-  //       quantity: item.quantity,
-  //       price: parseFloat(productPriceMap[item.productId]),
-  //       value: parseFloat((item.quantity * productPriceMap[item.productId]).toFixed(2))
-  //     }));
-  
-  
-  //     if (!Array.isArray(saleItemsData)) {
-  //         throw new Error("Erro interno: `saleItemsData` deveria ser um array.");
-  //     }
-  
-  //     // 🔹 Registrar saída no estoque para cada item vendido
-  //     for (const item of saleItemsData) {
-        
-  //       await stockService.registerStocksEntry({
-  //         productId: item.productId,
-  //         quantity: item.quantity,
-  //         type: "EXIT",  // 🔥 Saída de estoque
-  //         saleId: sale.id,
-  //         reason: "Venda realizada"
-  //       }, transaction);
-  //     }
-
-  //     const totalValue = parseFloat(
-  //         saleItemsData.reduce((sum, item) => sum + parseFloat(item.value), 0) 
-  //     ).toFixed(2);
-
-  //     await saleRepository.updateSaleValue(sale.id, totalValue, transaction);
-        
-  //     await transaction.commit();
-
-  //     return {
-  //       saleId: sale.id,
-  //       customerId: sale.customerId,
-  //       value: totalValue,
-  //       items: saleItemsData.map(item => ({
-  //         productId: item.productId,
-  //         quantity: item.quantity,
-  //         price: item.price,
-  //         value: item.value
-  //       }))
-  //     };
-  //   } catch (error) {
-  //     await transaction.rollback();
-  //     throw error;
-  //   }
-  // }
-   
   async updateSale(saleId, updateData) {
     const { customerId, items } = updateData;
 

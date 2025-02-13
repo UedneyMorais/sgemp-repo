@@ -140,8 +140,8 @@ class SaleRepository {
   };
 }
   
-  async createSale(customerId, transaction) {
-    return await Sale.create({ customerId }, { transaction });
+  async createSale({customerId, pdvSaleId, transaction}) {
+    return await Sale.create({ customerId, pdvSaleId }, { transaction });
   }
   
   async createSaleItems(items, transaction) {

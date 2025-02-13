@@ -22,7 +22,7 @@ const createProductReport = async (title, subtitle, products, userName) => {
   const data = products.map((product) => [
     product.id,
     product.description,
-    `R$ ${product.price.toFixed(2)}`,
+    `R$ ${product.price}`,
     product.cfop,
     product.ean,
     product.category?.categoryName || 'N/A',
