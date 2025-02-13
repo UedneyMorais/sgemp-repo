@@ -102,19 +102,22 @@ class SaleService {
 
 async createSale(req) {
   const { customerId, items, payments } = req.body;
+  console.log('Iniciando criação da venda:', { customerId, items, payments });
 
   const itemsArray = JSON.parse(JSON.stringify(items));
 
   const paymentsArray = JSON.parse(JSON.stringify(payments));
 
   if (!customerId || !Array.isArray(itemsArray) || itemsArray.length === 0) {
-      throw new Error('O JSON da venda está incompleto ou os itens estão incorretos.');
+    console.error('Erro: JSON da venda incompleto ou itens incorretos.', req.body);
+    throw new Error('O JSON da venda está incompleto ou os itens estão incorretos.');
   }
 
   const transaction = await sequelize.transaction(); 
 
   try {
       const sale = await saleRepository.createSale(customerId, transaction);
+      console.log(`Venda criada com sucesso. Sale ID: ${sale.id}`);
 
       const productIds = itemsArray.map(item => item.productId);
       const products = await Product.findAll({
@@ -136,6 +139,7 @@ async createSale(req) {
           value: parseFloat((item.quantity * productPriceMap[item.productId]).toFixed(2))
       }));
 
+      console.log('Verificando estoque antes de registrar a venda...');
       for (const item of saleItemsData) {
           const currentStock = await stockService.getStockByProductId(item.productId);
          
@@ -174,30 +178,22 @@ async createSale(req) {
       await Payment.bulkCreate(paymentData, { transaction });
 
       await transaction.commit(); 
-
-      const formattedSales = this.formattedSales({ sale, totalValue, paymentsArray, saleItemsData});
+      console.log(`Venda processada e registrada com sucesso (ID: ${sale.id}). Enviando para RabbitMQ...`);
 
       //Publicar no rabbitMQ
       const messageToRabbitMQ = {
         customerId: customerId,
         items: items,
-        saleNumber: '10',
+        pdvSaleId: sale.id,
         paymentData: paymentData,
         
         };
 
-        (async () => {
-            await rabbitmq.connect();
-            await rabbitmq.createQueue('finalized_sale');
-            await rabbitmq.sendToQueue('finalized_sale', messageToRabbitMQ);
-        })();
-
         await sendToQueue('finalized_sale', messageToRabbitMQ);
-       
-      return  formattedSales;
-
+    return this.formattedSales({ sale, totalValue, paymentsArray, saleItemsData});     
   } catch (error) {
       await transaction.rollback(); 
+      console.error('Erro ao processar a venda:', error);
       throw error;
   }
 }

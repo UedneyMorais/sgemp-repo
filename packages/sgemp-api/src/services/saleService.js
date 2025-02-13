@@ -101,20 +101,22 @@ class SaleService {
 // }
 
 async createSale(req) {
-  const { customerId, items, payments } = req.body;
+  const { customerId, items, payments, pdvSaleId} = req.body;
 
   const itemsArray = JSON.parse(JSON.stringify(items));
 
   const paymentsArray = JSON.parse(JSON.stringify(payments));
 
   if (!customerId || !Array.isArray(itemsArray) || itemsArray.length === 0) {
-      throw new Error('O JSON da venda está incompleto ou os itens estão incorretos.');
+    console.error('Erro: JSON da venda incompleto ou itens incorretos.', req.body);
+    throw new Error('O JSON da venda está incompleto ou os itens estão incorretos.');
   }
 
   const transaction = await sequelize.transaction(); 
 
   try {
-      const sale = await saleRepository.createSale(customerId, transaction);
+      const sale = await saleRepository.createSale(customerId,{transaction});
+      console.log(`Venda criada com sucesso. Sale ID: ${sale.id}`);
 
       const productIds = itemsArray.map(item => item.productId);
       const products = await Product.findAll({
@@ -140,7 +142,8 @@ async createSale(req) {
           const currentStock = await stockService.getStockByProductId(item.productId);
          
           if (currentStock < item.quantity) {
-              throw new Error(`Estoque insuficiente para saída do produto ${item.productId}.`);
+            console.error(`Erro: Estoque insuficiente para o produto ${item.productId}`);
+            throw new Error(`Estoque insuficiente para saída do produto ${item.productId}.`);
           }
       }
 

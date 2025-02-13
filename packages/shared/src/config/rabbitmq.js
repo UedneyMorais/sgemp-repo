@@ -7,12 +7,44 @@ const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://localhost';
 let connection;
 let channel;
 
+// // Conecta ao RabbitMQ
+// async function connect() {
+//     try {
+//         connection = await amqp.connect(RABBITMQ_URL);
+//         channel = await connection.createChannel();
+//         console.log('Conectado ao RabbitMQ');
+//     } catch (error) {
+//         console.error('Erro ao conectar ao RabbitMQ:', error);
+//         throw error;
+//     }
+// }
+
 // Conecta ao RabbitMQ
 async function connect() {
     try {
         connection = await amqp.connect(RABBITMQ_URL);
         channel = await connection.createChannel();
         console.log('Conectado ao RabbitMQ');
+
+        // Adiciona listeners para erros de conexão e canal
+        connection.on('close', () => {
+            console.error('Conexão com o RabbitMQ fechada. Tentando reconectar...');
+            setTimeout(connect, 5000); // Reconecta após 5 segundos
+        });
+
+        connection.on('error', (error) => {
+            console.error('Erro na conexão com o RabbitMQ:', error);
+        });
+
+        channel.on('close', () => {
+            console.error('Canal do RabbitMQ fechado. Tentando reconectar...');
+            setTimeout(connect, 5000); // Reconecta após 5 segundos
+        });
+
+        channel.on('error', (error) => {
+            console.error('Erro no canal do RabbitMQ:', error);
+        });
+
     } catch (error) {
         console.error('Erro ao conectar ao RabbitMQ:', error);
         throw error;
@@ -55,43 +87,102 @@ async function consumeQueue(queueName, callback) {
         }
 
         await channel.assertQueue(queueName, { durable: true });
+        channel.prefetch(1); // Garante que cada consumidor processe apenas uma mensagem por vez
 
-        // Limita o número de mensagens não confirmadas
-        channel.prefetch(1);
+        console.log(`📥 Consumindo mensagens da fila: ${queueName}...`);
 
-        console.log(`Consumindo mensagens da fila ${queueName}...`);
-
-        // Verifique se a mensagem já foi redelivery
         await channel.consume(queueName, async (message) => {
-            if (message !== null) {
-                const content = JSON.parse(message.content.toString());
-        
-                // Verifica se a mensagem já foi processada (redelivered)
+            if (!message) {
+                console.error('❌ Recebeu mensagem nula.');
+                return;
+            }
+
+            console.log(`🔍 Mensagem recebida - ID: ${message.fields.deliveryTag} | Redelivery: ${message.fields.redelivered}`);
+
+            const content = JSON.parse(message.content.toString());
+
+            try {
                 if (message.fields.redelivered) {
-                    console.log(`Mensagem redelivered (ID: ${message.fields.deliveryTag}). Ignorando ou processando de forma diferente...`);
-                    channel.ack(message); // Confirma a mensagem para evitar loops
+                    console.log(`🔁 Mensagem já redelivered - ID: ${message.fields.deliveryTag}. Ignorando ou processando de forma diferente...`);
+                    channel.ack(message); // Confirma para evitar loop
                     return;
                 }
-        
-                try {
-                    // Processa a mensagem
-                    await callback(content);
-                    console.log(`Mensagem processada com sucesso (ID: ${message.fields.deliveryTag}).`);
-                    channel.ack(message); // Confirma a mensagem após o processamento
-                } catch (error) {
-                    console.error(`Erro ao processar mensagem (ID: ${message.fields.deliveryTag}):`, error);
-                    // Caso ocorra um erro, rejeite a mensagem e a recoloque na fila
-                    channel.nack(message, false, true); // Rejeita a mensagem e a coloca novamente na fila
+
+                console.log(`🟢 Processando mensagem ID: ${message.fields.deliveryTag}`);
+
+                await callback(content); // Processa a mensagem
+
+                if (channel) {
+                    channel.ack(message); // ✅ Envia ACK somente após sucesso
+                    console.log(`✅ Mensagem processada e confirmada (ACK enviado) - ID: ${message.fields.deliveryTag}`);
+                } else {
+                    console.error('⚠️ Canal fechado antes do ACK.');
+                }
+            } catch (error) {
+                console.error(`❌ Erro ao processar mensagem (ID: ${message.fields.deliveryTag}):`, error);
+
+                if (channel) {
+                    console.warn(`🔄 Mensagem ${message.fields.deliveryTag} será reenviada para a fila.`);
+                    channel.nack(message, false, true); // Reenvia a mensagem para a fila
                 }
             }
         }, { noAck: false });
 
-        console.log('VEIO AQUI')
     } catch (error) {
-        console.error(`Erro ao configurar consumidor para a fila ${queueName}:`, error);
-        throw error;
+        console.error(`❌ Erro ao configurar consumidor para a fila ${queueName}:`, error);
     }
 }
+
+
+// async function consumeQueue(queueName, callback) {
+//     try {
+//         if (!channel) {
+//             await connect();
+//         }
+
+//         await channel.assertQueue(queueName, { durable: true });
+
+//         // Limita o número de mensagens não confirmadas
+//         channel.prefetch(1);
+
+//         console.log(`Consumindo mensagens da fila ${queueName}...`);
+
+//         // Verifique se a mensagem já foi redelivery
+//         await channel.consume(queueName, async (message) => {
+//             if (message !== null) {
+//                 const content = JSON.parse(message.content.toString());
+        
+//                 // Verifica se a mensagem já foi processada (redelivered)
+//                 if (message.fields.redelivered) {
+//                     console.log(`Mensagem redelivered (ID: ${message.fields.deliveryTag}). Ignorando ou processando de forma diferente...`);
+//                     channel.ack(message); // Confirma a mensagem para evitar loops
+//                     return;
+//                 }
+        
+//                 try {
+//                     // Processa a mensagem
+//                     await callback(content);
+
+//                     if (channel) {
+//                         channel.ack(message);
+//                         console.log(`Mensagem processada com sucesso (ID: ${message.fields.deliveryTag}).`);
+//                     } else {
+//                         console.error('Canal fechado antes de ACK.');
+//                     }
+//                 } catch (error) {
+//                     console.error(`Erro ao processar mensagem (ID: ${message.fields.deliveryTag}):`, error);
+//                     // Caso ocorra um erro, rejeite a mensagem e a recoloque na fila
+//                     channel.nack(message, false, true); // Rejeita a mensagem e a coloca novamente na fila
+//                 }
+//             }
+//         }, { noAck: false });
+
+//         console.log('VEIO AQUI')
+//     } catch (error) {
+//         console.error(`Erro ao configurar consumidor para a fila ${queueName}:`, error);
+//         throw error;
+//     }
+// }
 
 // Fecha a conexão com o RabbitMQ
 async function closeConnection() {

@@ -27,6 +27,10 @@ module.exports = {
     nfe_number: {
       type: Sequelize.INTEGER
     },
+    pdv_sale_Id: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+    },
     active: {
       type: Sequelize.BOOLEAN,
       allowNull: false,

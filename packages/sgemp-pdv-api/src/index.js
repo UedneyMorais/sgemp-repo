@@ -7,11 +7,11 @@ const rabbitmq = require('shared/src/config/rabbitmq'); // Importe o seu arquivo
 
 async function startApp() {
     try {
-      await rabbitmq.createQueue('finalized_sale');
+      //await rabbitmq.createQueue('finalized_sale');
       server.start();
   
       // Inicia o consumidor
-      startConsume();
+      //startConsume();
   
       // Aguarda 2 segundos para garantir que o consumidor esteja pronto
       await new Promise(resolve => setTimeout(resolve, 2000));

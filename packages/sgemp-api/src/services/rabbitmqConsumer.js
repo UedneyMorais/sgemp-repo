@@ -2,12 +2,17 @@ const { consumeQueue } = require('shared/src/config/rabbitmq');
 const saleService = require('./saleService');
 
 async function startConsume() {
+    console.log("Iniciando consumo do RabbitMQ..."); // Verificar quantas vezes aparece no log
     try {
         await consumeQueue('finalized_sale', async (message) => {
+            console.log('Mensagem recebida:', message);
+            console.log('Nova venda finalizada recebida:', message);
+            console.log('Processando mensagem...');
 
             try {
                 await createSale(message); // Adicionado await
                 await generateReport(message); // Adicionado await
+                console.log('Mensagem processada com sucesso.');
             } catch (error) {
                 console.error('Erro ao processar mensagem:', error);
             }
@@ -18,14 +23,15 @@ async function startConsume() {
 }
 
 async function createSale(message) {
-    const { customerId, items, paymentData, saleNumber } = message;
+    console.log("Entrando no createSale a partir do rabbitMQ");
+    const { customerId, items, paymentData, pdvSaleId } = message;
 
     const req = {
         body: {
             customerId,
             items,
             payments: paymentData,
-            saleNumber,
+            pdvSaleId,
         },
     };
 
@@ -38,6 +44,6 @@ function generateReport(sale) {
 }
 
 // Inicia o consumo das mensagens
-startConsume();
+//startConsume();
 
 module.exports = { startConsume };

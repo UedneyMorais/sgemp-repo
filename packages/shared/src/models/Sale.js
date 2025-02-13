@@ -33,11 +33,15 @@ class Sale extends Model {
                 nfeNumber: {
                     type: DataTypes.INTEGER,
                 },
+                pdvSaleId: {
+                    type: DataTypes.INTEGER,
+                    allowNull: true,
+                },
                 active: {
                     type: DataTypes.BOOLEAN,
                     allowNull: false,
                     defaultValue: true
-                  },
+                },
             },
             {
                 sequelize,

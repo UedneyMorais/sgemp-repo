@@ -3,12 +3,12 @@ const { consumeQueue } = require('shared/src/config/rabbitmq');
 
 async function startConsume() {
   try {
-    await consumeQueue('finalized_sale', (message) => {
-      console.log('Nova venda finalizada recebida:', message);
+    // await consumeQueue('finalized_sale', (message) => {
+    //   console.log('Nova venda finalizada recebida:', message);
 
-      updateStock(message.itens);
-      generateReport(message);
-    });
+    //   updateStock(message.itens);
+    //   generateReport(message);
+    // });
   } catch (error) {
     console.error('Erro ao consumir mensagens do RabbitMQ:', error);
   }
@@ -25,6 +25,6 @@ function generateReport(sale) {
 }
 
 // Inicia o consumo das mensagens
-startConsume();
+//startConsume();
 
 module.exports = { startConsume }

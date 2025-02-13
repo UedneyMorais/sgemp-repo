@@ -7,7 +7,7 @@ const rabbitmq = require('shared/src/config/rabbitmq'); // Importe o seu arquivo
 
 async function startApp() {
     try {
-        
+         console.log("Iniciando o servidor...");
         server.start();
 
         startConsume();
